@@ -26,4 +26,4 @@ htmlcov/
 Thumbs.db
 
 # Logs
-*.log
+*.log.ruff_cache/

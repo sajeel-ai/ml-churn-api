@@ -2,12 +2,12 @@ import logging
 
 from fastapi import FastAPI, HTTPException
 
+from app.api.v1.router import router as v1_router
 from app.core.config import settings
 from app.core.logging_config import configure_logging
-
-from app.model.loader import load_model, load_metadata
-from app.services.prediction_service import PredictionService
+from app.model.loader import get_bundle
 from app.schemas.prediction import CustomerData, PredictionResponse
+from app.services.deps import get_prediction_service
 
 
 configure_logging()
@@ -20,23 +20,27 @@ app = FastAPI(
     version=settings.app_version
 )
 
-
-model = load_model()
-metadata = load_metadata()
+app.include_router(v1_router)
 
 
-prediction_service = PredictionService(
-    model=model,
-    threshold=metadata["threshold"]
-)
+# Fail fast at startup if the model, metadata or risk policy are inconsistent.
+_bundle = get_bundle()
+prediction_service = get_prediction_service()
+model = _bundle.model
+metadata = _bundle.metadata
 
 
 logger.info(
-    "Application started | environment=%s | model=%s",
+    "Application started | environment=%s | model=%s | version=%s",
     settings.environment,
-    metadata["model_type"]
+    metadata["model_type"],
+    metadata["model_version"],
 )
 
+
+# ---------------------------------------------------------------------------
+# Legacy endpoints (unchanged response shapes). Prefer /api/v1/*.
+# ---------------------------------------------------------------------------
 
 @app.get("/")
 def root():

@@ -1,4 +1,5 @@
 .venv/
+venv/
 __pycache__/
 *.pyc
 
@@ -6,11 +7,17 @@ __pycache__/
 .gitignore
 
 .pytest_cache/
+.ruff_cache/
 
 notebooks/
 data/
+tests/
+scripts/
+docs/
 
 .env
+.env.*
+!.env.example
 
 .vscode/
 .idea/
