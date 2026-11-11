@@ -29,5 +29,5 @@ def test_metrics_are_in_valid_range():
 
 
 def test_limitations_documented():
-    assert META["calibration_evaluated"] is False
+    assert META["calibration_evaluated"] is True
     assert META["limitations"]

@@ -2,6 +2,7 @@ from fastapi.testclient import TestClient
 
 from app.core.config import Settings
 from app.main import app
+from app.model.loader import load_metadata
 from app.services.risk import classify_risk
 
 client = TestClient(app)
@@ -25,8 +26,9 @@ def test_model_info_is_real_and_safe():
     body = r.json()
     assert len(body["features"]) == 19
     assert body["features"][0] == "gender"
-    assert body["calibration_evaluated"] is False
-    assert body["threshold"] == 0.29
+    assert body["calibration_evaluated"] is True
+    assert body["calibration"]["expected_calibration_error"] < 0.05
+    assert body["threshold"] == load_metadata()["threshold"]
     assert "feature_1" not in body["features"]
     assert "model_path" not in body
     assert {"accuracy", "precision", "recall", "f1", "roc_auc"} <= body["metrics"].keys()
@@ -40,7 +42,7 @@ def test_predict_v1(customer):
     assert body["prediction"] in (0, 1)
     assert body["predicted_label"] == ("churn" if body["prediction"] else "no_churn")
     assert body["risk_level"] in ("low", "medium", "high")
-    assert body["model_version"] == "1.0.0"
+    assert body["model_version"] == load_metadata()["model_version"]
     assert "not a guarantee" in body["disclaimer"]
     assert body["warnings"] == []
     assert body["predicted_at"]
@@ -72,7 +74,7 @@ def test_inconsistent_services_rejected(customer):
 
 
 def test_risk_policy():
-    t, h = 0.29, 0.5
+    t, h = 0.29, 0.5  # pure function test with explicit values
     assert classify_risk(0.10, t, h) == "low"
     assert classify_risk(0.29, t, h) == "medium"
     assert classify_risk(0.49, t, h) == "medium"

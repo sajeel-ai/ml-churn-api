@@ -1,0 +1,155 @@
+{
+    "model_version": "1.0.0",
+    "model_type": "XGBClassifier",
+    "algorithm": "XGBoost classifier inside a scikit-learn Pipeline",
+    "preprocessing": "Numeric: median imputation + StandardScaler. Categorical: most-frequent imputation + OneHotEncoder (handle_unknown='ignore').",
+    "threshold": 0.29,
+    "target": "Churn",
+    "positive_class": 1,
+    "negative_class": 0,
+    "features": [
+        "gender",
+        "SeniorCitizen",
+        "Partner",
+        "Dependents",
+        "tenure",
+        "PhoneService",
+        "MultipleLines",
+        "InternetService",
+        "OnlineSecurity",
+        "OnlineBackup",
+        "DeviceProtection",
+        "TechSupport",
+        "StreamingTV",
+        "StreamingMovies",
+        "Contract",
+        "PaperlessBilling",
+        "PaymentMethod",
+        "MonthlyCharges",
+        "TotalCharges"
+    ],
+    "categorical_values": {
+        "gender": [
+            "Female",
+            "Male"
+        ],
+        "Partner": [
+            "No",
+            "Yes"
+        ],
+        "Dependents": [
+            "No",
+            "Yes"
+        ],
+        "PhoneService": [
+            "No",
+            "Yes"
+        ],
+        "MultipleLines": [
+            "No",
+            "No phone service",
+            "Yes"
+        ],
+        "InternetService": [
+            "DSL",
+            "Fiber optic",
+            "No"
+        ],
+        "OnlineSecurity": [
+            "No",
+            "No internet service",
+            "Yes"
+        ],
+        "OnlineBackup": [
+            "No",
+            "No internet service",
+            "Yes"
+        ],
+        "DeviceProtection": [
+            "No",
+            "No internet service",
+            "Yes"
+        ],
+        "TechSupport": [
+            "No",
+            "No internet service",
+            "Yes"
+        ],
+        "StreamingTV": [
+            "No",
+            "No internet service",
+            "Yes"
+        ],
+        "StreamingMovies": [
+            "No",
+            "No internet service",
+            "Yes"
+        ],
+        "Contract": [
+            "Month-to-month",
+            "One year",
+            "Two year"
+        ],
+        "PaperlessBilling": [
+            "No",
+            "Yes"
+        ],
+        "PaymentMethod": [
+            "Bank transfer (automatic)",
+            "Credit card (automatic)",
+            "Electronic check",
+            "Mailed check"
+        ]
+    },
+    "training_ranges": {
+        "tenure": {
+            "min": 0.0,
+            "max": 72.0
+        },
+        "MonthlyCharges": {
+            "min": 18.25,
+            "max": 118.75
+        },
+        "TotalCharges": {
+            "min": 18.8,
+            "max": 8684.8
+        }
+    },
+    "training_dataset": {
+        "name": "IBM Telco Customer Churn",
+        "file": "data/WA_Fn-UseC_-Telco-Customer-Churn.csv",
+        "rows": 7043,
+        "churn_rate": 0.2654
+    },
+    "evaluation": {
+        "split": "stratified hold-out, test_size=0.2, random_state=42",
+        "n_test": 1409,
+        "threshold_selection": "Threshold chosen by maximizing F1 on this same test split, so these metrics are optimistic estimates.",
+        "confusion_matrix": {
+            "tn": 782,
+            "fp": 253,
+            "fn": 86,
+            "tp": 288
+        },
+        "validation_type": "offline only; no production validation"
+    },
+    "metrics": {
+        "accuracy": 0.7594,
+        "precision": 0.5323,
+        "recall": 0.7701,
+        "f1": 0.6295,
+        "roc_auc": 0.8476,
+        "brier_score": 0.1347
+    },
+    "calibration_evaluated": false,
+    "intended_use": "Rank and flag telecom customers by estimated churn likelihood to support retention decision-making by a human.",
+    "limitations": [
+        "Trained on a single public telecom dataset (7,043 customers); may not generalize to other businesses, regions or time periods.",
+        "Probabilities have not been formally calibrated.",
+        "Threshold and metrics were derived on the same hold-out set.",
+        "Predictions show association, not causation.",
+        "Inputs outside the training ranges may be less reliable."
+    ],
+    "artifact_sha256": "2637a33b84f128045ef7c8c7d32c965d0572092f900dea2df26e0c74703d69a2",
+    "last_updated": "2026-11-11"
+}

@@ -6,7 +6,7 @@ from app.model.predictor import predict_churn
 
 def test_model_and_metadata_load():
     assert load_model() is not None
-    assert load_metadata()["threshold"] == 0.29
+    assert 0 < load_metadata()["threshold"] < 1
 
 
 def test_predict_churn_output(customer):

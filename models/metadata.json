@@ -1,9 +1,9 @@
 {
-    "model_version": "1.0.0",
+    "model_version": "1.1.0",
     "model_type": "XGBClassifier",
-    "algorithm": "XGBoost classifier inside a scikit-learn Pipeline",
+    "algorithm": "XGBClassifier inside a scikit-learn Pipeline. Selected by 5-fold CV ROC-AUC on the training split (logistic 0.8461 vs tuned XGBoost 0.8510).",
     "preprocessing": "Numeric: median imputation + StandardScaler. Categorical: most-frequent imputation + OneHotEncoder (handle_unknown='ignore').",
-    "threshold": 0.29,
+    "threshold": 0.32,
     "target": "Churn",
     "positive_class": 1,
     "negative_class": 0,
@@ -124,32 +124,89 @@
     "evaluation": {
         "split": "stratified hold-out, test_size=0.2, random_state=42",
         "n_test": 1409,
-        "threshold_selection": "Threshold chosen by maximizing F1 on this same test split, so these metrics are optimistic estimates.",
+        "threshold_selection": "Threshold chosen by maximizing F1 on 5-fold out-of-fold predictions from the training split only; the hold-out test set was scored once.",
         "confusion_matrix": {
-            "tn": 782,
-            "fp": 253,
-            "fn": 86,
-            "tp": 288
+            "tn": 804,
+            "fp": 231,
+            "fn": 93,
+            "tp": 281
         },
         "validation_type": "offline only; no production validation"
     },
     "metrics": {
-        "accuracy": 0.7594,
-        "precision": 0.5323,
-        "recall": 0.7701,
-        "f1": 0.6295,
-        "roc_auc": 0.8476,
-        "brier_score": 0.1347
+        "accuracy": 0.77,
+        "precision": 0.5488,
+        "recall": 0.7513,
+        "f1": 0.6343,
+        "roc_auc": 0.8486,
+        "brier_score": 0.1344
     },
-    "calibration_evaluated": false,
+    "calibration_evaluated": true,
+    "calibration": {
+        "method": "10 equal-frequency bins on the hold-out set",
+        "expected_calibration_error": 0.0184,
+        "bins": [
+            {
+                "n": 141,
+                "mean_predicted": 0.012,
+                "observed_rate": 0.014
+            },
+            {
+                "n": 141,
+                "mean_predicted": 0.024,
+                "observed_rate": 0.0
+            },
+            {
+                "n": 141,
+                "mean_predicted": 0.046,
+                "observed_rate": 0.057
+            },
+            {
+                "n": 141,
+                "mean_predicted": 0.082,
+                "observed_rate": 0.078
+            },
+            {
+                "n": 141,
+                "mean_predicted": 0.138,
+                "observed_rate": 0.199
+            },
+            {
+                "n": 140,
+                "mean_predicted": 0.227,
+                "observed_rate": 0.229
+            },
+            {
+                "n": 141,
+                "mean_predicted": 0.338,
+                "observed_rate": 0.312
+            },
+            {
+                "n": 141,
+                "mean_predicted": 0.454,
+                "observed_rate": 0.411
+            },
+            {
+                "n": 141,
+                "mean_predicted": 0.579,
+                "observed_rate": 0.589
+            },
+            {
+                "n": 141,
+                "mean_predicted": 0.763,
+                "observed_rate": 0.766
+            }
+        ],
+        "note": "Measured on a single hold-out of 1,409 customers; indicates approximate calibration on this dataset only."
+    },
     "intended_use": "Rank and flag telecom customers by estimated churn likelihood to support retention decision-making by a human.",
     "limitations": [
         "Trained on a single public telecom dataset (7,043 customers); may not generalize to other businesses, regions or time periods.",
-        "Probabilities have not been formally calibrated.",
-        "Threshold and metrics were derived on the same hold-out set.",
+        "Calibration was checked on one hold-out set only and was not re-fitted; probabilities are approximate estimates.",
+        "Metrics come from a single 80/20 hold-out split; no production validation has been performed.",
         "Predictions show association, not causation.",
         "Inputs outside the training ranges may be less reliable."
     ],
-    "artifact_sha256": "2637a33b84f128045ef7c8c7d32c965d0572092f900dea2df26e0c74703d69a2",
+    "artifact_sha256": "bf046a99d509661e11096d46b0b68f6f904b45f1b5a85e18af2c22b8710c891d",
     "last_updated": "2026-11-11"
 }

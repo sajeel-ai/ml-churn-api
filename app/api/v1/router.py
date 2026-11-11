@@ -18,7 +18,7 @@ _PUBLIC_MODEL_FIELDS = (
     "model_version", "model_type", "algorithm", "preprocessing", "threshold",
     "target", "features", "categorical_values", "training_ranges",
     "training_dataset", "evaluation", "metrics", "calibration_evaluated",
-    "intended_use", "limitations", "last_updated",
+    "intended_use", "limitations", "last_updated", "calibration",
 )
 
 
