@@ -35,7 +35,12 @@ def test_model_info_is_real_and_safe():
     assert "risk_policy" in body
 
 
-def test_predict_v1(customer):
+def test_predict_requires_login(customer):
+    assert client.post("/api/v1/predict", json=customer).status_code == 401
+
+
+def test_predict_v1(customer, make_client):
+    client = make_client("p1@example.com")
     r = client.post("/api/v1/predict", json=customer)
     assert r.status_code == 200
     body = r.json()
@@ -48,7 +53,8 @@ def test_predict_v1(customer):
     assert body["predicted_at"]
 
 
-def test_predict_v1_matches_legacy(customer):
+def test_predict_v1_matches_legacy(customer, make_client):
+    client = make_client("p2@example.com")
     legacy = client.post("/predict", json=customer).json()
     v1 = client.post("/api/v1/predict", json=customer).json()
     assert legacy["probability"] == v1["probability"]
@@ -56,19 +62,22 @@ def test_predict_v1_matches_legacy(customer):
     assert set(legacy) == {"prediction", "probability"}  # legacy shape unchanged
 
 
-def test_predict_v1_out_of_range_warning(customer):
+def test_predict_v1_out_of_range_warning(customer, make_client):
+    client = make_client("p3@example.com")
     customer["tenure"] = 500
     body = client.post("/api/v1/predict", json=customer).json()
     assert any("tenure" in w for w in body["warnings"])
 
 
-def test_invalid_category_rejected_both_endpoints(customer):
+def test_invalid_category_rejected_both_endpoints(customer, make_client):
+    client = make_client("p4@example.com")
     customer["Contract"] = "Banana"
     assert client.post("/predict", json=customer).status_code == 422
     assert client.post("/api/v1/predict", json=customer).status_code == 422
 
 
-def test_inconsistent_services_rejected(customer):
+def test_inconsistent_services_rejected(customer, make_client):
+    client = make_client("p5@example.com")
     customer["InternetService"] = "No"
     assert client.post("/api/v1/predict", json=customer).status_code == 422
 

@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
-from app.model.predictor import predict_churn
+from app.model.predictor import predict_churn, predict_churn_batch
+from app.services.explain import explain
 from app.services.risk import classify_risk
 
 DISCLAIMER = (
@@ -26,9 +27,20 @@ class PredictionService:
             threshold=self.threshold
         )
 
+    def predict_many(self, records):
+        return predict_churn_batch(self.model, records, self.threshold)
+
+    def risk_for(self, probability):
+        from app.services.risk import classify_risk
+        return classify_risk(probability, self.threshold, self.high_threshold)
+
     def range_warnings(self, customer_data):
         """Flag numeric inputs outside the range seen during training."""
         warnings = []
+        if customer_data.get("TotalCharges") is None:
+            warnings.append(
+                "TotalCharges was not provided (new customer); the model's "
+                "training-time median imputation was applied.")
         for field, bounds in self.training_ranges.items():
             value = customer_data.get(field)
             if value is None:
@@ -57,4 +69,5 @@ class PredictionService:
             "predicted_at": datetime.now(timezone.utc),
             "warnings": self.range_warnings(customer_data),
             "disclaimer": DISCLAIMER,
+            "explanation": explain(self.model, customer_data),
         }

@@ -52,11 +52,15 @@ class CustomerData(BaseModel):
     PaymentMethod: PaymentMethod
 
     MonthlyCharges: float = Field(ge=0, allow_inf_nan=False)
-    TotalCharges: float = Field(ge=0, allow_inf_nan=False)
+    # Blank only for brand-new customers (tenure 0), as in the training data;
+    # the trained pipeline then applies its fitted median imputation.
+    TotalCharges: float | None = Field(default=None, ge=0, allow_inf_nan=False)
 
     @model_validator(mode="after")
     def _check_service_dependencies(self):
         """Enforce the dependency rules present in the training data."""
+        if self.TotalCharges is None and self.tenure != 0:
+            raise ValueError("TotalCharges is required unless tenure is 0")
         if self.PhoneService == "No" and self.MultipleLines != "No phone service":
             raise ValueError(
                 "MultipleLines must be 'No phone service' when PhoneService is 'No'"
@@ -99,6 +103,7 @@ class PredictionV1Response(BaseModel):
     predicted_at: datetime
     warnings: list[str]
     disclaimer: str
+    explanation: dict | None = None
 
 
 class HealthLive(BaseModel):
