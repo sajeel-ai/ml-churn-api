@@ -1,0 +1,5 @@
+# Automatic HTTPS (Let's Encrypt). DOMAIN comes from .env, e.g. churn.yourdomain.com
+{$DOMAIN} {
+	encode gzip
+	reverse_proxy frontend:3000
+}

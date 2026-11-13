@@ -26,4 +26,7 @@ htmlcov/
 Thumbs.db
 
 # Logs
-*.log
+*.log.ruff_cache/
+!.env.example
+*.db
+*.sqlite3
