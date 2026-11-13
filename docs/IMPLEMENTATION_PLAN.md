@@ -1,6 +1,6 @@
 # Customer Churn Intelligence Platform: Implementation Plan
 
-Status: Phase 1 complete. Phases 2 to 6 not started.
+Status: Phases 1-3 complete (backend, database, auth, frontend, tests, deployment config). Phase 5 admin UI is included. Remaining: choose hosting, deploy, verify on the public URL, add monitoring and browser E2E tests.
 
 ## 1. Current architecture assessment (verified against the repo)
 - FastAPI + Pydantic app, scikit-learn Pipeline with XGBClassifier, joblib artifact.

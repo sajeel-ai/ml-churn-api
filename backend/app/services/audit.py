@@ -18,7 +18,10 @@ def client_ip(request: Request | None) -> str | None:
     if settings.trust_proxy_headers:
         fwd = request.headers.get("x-forwarded-for")
         if fwd:
-            return fwd.split(",")[0].strip()[:64]
+            hops = [h.strip() for h in fwd.split(",") if h.strip()]
+            n = max(1, settings.trusted_proxy_hops)
+            if len(hops) >= n:
+                return hops[-n][:64]
     return request.client.host[:64] if request.client else None
 
 

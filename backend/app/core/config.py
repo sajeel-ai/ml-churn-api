@@ -33,6 +33,14 @@ class Settings(BaseSettings):
     allowed_origins: str = "http://localhost:3000"
     allowed_hosts: str = "*"
     trust_proxy_headers: bool = False
+    # Number of proxies in front of the API that APPEND the address they received the
+    # request from (a load balancer, Caddy, ...). The real client is that many entries
+    # from the RIGHT of X-Forwarded-For, so a client-supplied prefix is never trusted.
+    # The Next.js server forwards the header unchanged and does not count as a hop.
+    # Usual value: 1 (Render, Caddy, most load balancers).
+    # NEVER enable trust_proxy_headers if clients can reach the web app without such a
+    # proxy in front: they could then spoof their address and dodge per-IP rate limits.
+    trusted_proxy_hops: int = 1
 
     # --- Password hashing (Argon2id; defaults follow OWASP minimums) -------
     argon2_time_cost: int = 2

@@ -76,3 +76,20 @@ def test_model_info_and_versions(make_client):
     assert [x["status"] for x in v if x["version"] == "1.1.0"] == ["active"]
     assert any(x["version"] == "1.0.0" and x["status"] == "archived" for x in v)
     assert new_client().get("/api/v1/model/versions").status_code == 401
+
+
+def test_cli_create_admin_and_login(app_client):
+    from app import cli
+    assert cli.create_admin("boss@example.com", "The Boss", "Weak1") == 1       # policy enforced
+    assert cli.create_admin("boss@example.com", "The Boss", "Strong-admin-pass-9") == 0
+    r = app_client.post("/api/v1/auth/login", json={"email": "boss@example.com", "password": "Strong-admin-pass-9"})
+    assert r.status_code == 200 and r.json()["role"] == "admin"
+    assert cli.set_role("boss@example.com", "analyst") == 0
+    assert cli.set_role("ghost@example.com", "analyst") == 1
+
+
+def test_register_cannot_choose_role(app_client):
+    r = app_client.post("/api/v1/auth/register", json={
+        "name": "Mallory Smith", "email": "m@example.com", "role": "admin",
+        "password": "Correct-horse-42", "confirm_password": "Correct-horse-42"})
+    assert r.status_code == 201 and r.json()["role"] == "analyst"

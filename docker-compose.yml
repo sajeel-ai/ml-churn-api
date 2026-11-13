@@ -1,0 +1,57 @@
+# Local or single-server deployment:  cp .env.example .env  (edit)  &&  docker compose up --build
+# Only the web app is exposed. The API and database stay on the private network.
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: churn
+      POSTGRES_USER: churn
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U churn -d churn"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+      DATABASE_URL: postgresql://churn:${POSTGRES_PASSWORD}@db:5432/churn
+      RUN_MIGRATIONS: "true"
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
+      ALLOWED_ORIGINS: ${PUBLIC_URL:?set PUBLIC_URL in .env}
+      FRONTEND_BASE_URL: ${PUBLIC_URL}
+      ALLOWED_HOSTS: backend,localhost,127.0.0.1
+      TRUST_PROXY_HEADERS: ${TRUST_PROXY_HEADERS:-true}
+      TRUSTED_PROXY_HOPS: ${TRUSTED_PROXY_HOPS:-1}
+      RISK_HIGH_THRESHOLD: ${RISK_HIGH_THRESHOLD:-0.50}
+      EMAIL_BACKEND: ${EMAIL_BACKEND:-console}
+      EMAIL_FROM: ${EMAIL_FROM:-no-reply@example.com}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+    expose:
+      - "8000"
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      BACKEND_URL: http://backend:8000
+    ports:
+      - "127.0.0.1:${WEB_PORT:-3000}:3000"   # localhost only: put Caddy or a load balancer in front for public access
+
+volumes:
+  pgdata:

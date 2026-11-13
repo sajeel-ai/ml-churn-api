@@ -1,0 +1,88 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Light theme: white / light-gray surfaces, navy + blue primary. */
+:root {
+  --background: #f6f8fb;
+  --foreground: #0b1b3a;
+  --card: #ffffff;
+  --card-foreground: #0b1b3a;
+  --muted: #eef2f7;
+  --muted-foreground: #5b6b86;
+  --border: #dde4ee;
+  --input: #cfd8e6;
+  --primary: #1d4ed8;
+  --primary-foreground: #ffffff;
+  --accent: #0891b2;
+  --navy: #0b1f4d;
+  --ring: #3b6ef5;
+  --risk-low: #059669;
+  --risk-medium: #d97706;
+  --risk-high: #dc2626;
+  --risk-low-bg: #ecfdf5;
+  --risk-medium-bg: #fffbeb;
+  --risk-high-bg: #fef2f2;
+  --glow-a: #dbe7ff;
+  --glow-b: #d3f3f8;
+}
+
+/* Dark theme, taken from the supplied prototype's look. */
+.dark {
+  --background: #07090e;
+  --foreground: #e6ebf5;
+  --card: #0e1320;
+  --card-foreground: #e6ebf5;
+  --muted: #141b2c;
+  --muted-foreground: #8d9ab3;
+  --border: #1f2940;
+  --input: #2a3550;
+  --primary: #5b7cfa;
+  --primary-foreground: #ffffff;
+  --accent: #22d3ee;
+  --navy: #0b1226;
+  --ring: #6f8cff;
+  --risk-low: #34d399;
+  --risk-medium: #fbbf24;
+  --risk-high: #fb7185;
+  --risk-low-bg: rgba(52, 211, 153, 0.12);
+  --risk-medium-bg: rgba(251, 191, 36, 0.12);
+  --risk-high-bg: rgba(251, 113, 133, 0.12);
+  --glow-a: rgba(79, 70, 229, 0.16);
+  --glow-b: rgba(8, 145, 178, 0.14);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-navy: var(--navy);
+  --color-ring: var(--ring);
+  --color-risk-low: var(--risk-low);
+  --color-risk-medium: var(--risk-medium);
+  --color-risk-high: var(--risk-high);
+  --color-risk-low-bg: var(--risk-low-bg);
+  --color-risk-medium-bg: var(--risk-medium-bg);
+  --color-risk-high-bg: var(--risk-high-bg);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+* { border-color: var(--border); }
+html { color-scheme: light; }
+html.dark { color-scheme: dark; }
+body { background: var(--background); color: var(--foreground); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+
+.ambient::before, .ambient::after {
+  content: ""; position: fixed; z-index: 0; pointer-events: none; border-radius: 9999px; filter: blur(120px);
+}
+.ambient::before { top: -10rem; left: 20%; width: 36rem; height: 36rem; background: var(--glow-a); }
+.ambient::after { top: 30%; right: -6rem; width: 30rem; height: 30rem; background: var(--glow-b); }

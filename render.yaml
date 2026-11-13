@@ -1,0 +1,58 @@
+# Render Blueprint (starting point, not yet tested on Render: review in the dashboard before applying).
+# Free plans sleep after ~15 minutes idle and free Postgres expires; switch `plan:` to a paid plan for real use.
+databases:
+  - name: churn-db
+    plan: free
+    databaseName: churn
+    user: churn
+
+services:
+  - type: web
+    name: churn-api
+    runtime: docker
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    plan: free
+    healthCheckPath: /api/v1/health/ready
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: RUN_MIGRATIONS
+        value: "true"
+      - key: TRUST_PROXY_HEADERS
+        value: "true"
+      - key: TRUSTED_PROXY_HOPS   # Render's load balancer appends the real client address
+        value: "1"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: churn-db
+          property: connectionString
+      # Set these in the dashboard after the first deploy (they need the final URLs):
+      - key: ALLOWED_ORIGINS        # e.g. https://churn-web.onrender.com
+        sync: false
+      - key: FRONTEND_BASE_URL      # same as above
+        sync: false
+      - key: ALLOWED_HOSTS          # e.g. churn-api.onrender.com
+        sync: false
+      - key: EMAIL_BACKEND          # smtp (console does not deliver email)
+        value: console
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+
+  - type: web
+    name: churn-web
+    runtime: docker
+    dockerContext: ./frontend
+    dockerfilePath: ./frontend/Dockerfile
+    plan: free
+    envVars:
+      - key: BACKEND_URL            # e.g. https://churn-api.onrender.com
+        sync: false

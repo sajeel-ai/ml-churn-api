@@ -28,3 +28,5 @@ Thumbs.db
 # Logs
 *.log.ruff_cache/
 !.env.example
+*.db
+*.sqlite3
